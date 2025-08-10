@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/auth/core/current-user'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -8,13 +9,13 @@ import {
 } from '@/components/ui/card'
 import Link from 'next/link'
 
-export default function Home() {
+export default async function Home() {
   // const user = {
   //   id: '1',
   //   name: 'John Doe',
   //   role: 'admin',
   // }
-  const user = null
+  const user = await getCurrentUser({ withFullUser: true })
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
