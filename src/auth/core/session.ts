@@ -1,7 +1,7 @@
 import { userRoles } from '@/db/schema'
 import { redisClient } from '@/redis/redis-client'
-import crypto from 'crypto'
 import z from 'zod'
+import { v7 } from 'uuid'
 
 // Seven days in seconds
 const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7
@@ -40,12 +40,22 @@ export async function createUserSession(
   user: UserSession,
   cookies: Pick<Cookies, 'set'>
 ) {
-  const sessionId = crypto.randomBytes(512).toString('hex').normalize()
+  const sessionId = v7()
   await redisClient.set(`session:${sessionId}`, sessionSchema.parse(user), {
     ex: SESSION_EXPIRATION_SECONDS,
   })
 
   setCookie(sessionId, cookies)
+}
+
+export async function removeUserFromSession(
+  cookies: Pick<Cookies, 'get' | 'delete'>
+) {
+  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
+  if (sessionId == null) return null
+
+  await redisClient.del(`session:${sessionId}`)
+  cookies.delete(COOKIE_SESSION_KEY)
 }
 
 function setCookie(sessionId: string, cookies: Pick<Cookies, 'set'>) {

@@ -2,11 +2,14 @@
 
 import { db } from '@/db/drizzle'
 import { users } from '@/db/schema'
-import { SignUpFormData } from '@/types/auth.type'
+import { SignInFormData, SignUpFormData } from '@/types/auth.type'
 import { eq } from 'drizzle-orm'
-import { hashPassword } from './password-hasher'
-import { id } from 'zod/locales'
-import { createUserSession } from './session'
+import { comparePassword, hashPassword } from './password-hasher'
+import {
+  createUserSession,
+  removeUserFromSession,
+  UserSession,
+} from './session'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
@@ -26,7 +29,32 @@ export async function signUp(data: SignUpFormData) {
     role: users.role,
   })
 
+  await createUserSession(user as UserSession, await cookies())
+
+  redirect('/')
+}
+
+export async function signIn(data: SignInFormData) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, data.email),
+  })
+
+  console.log('User found:', user)
+
+  if (!user) {
+    throw new Error('Invalid email')
+  }
+
+  if (!comparePassword(data.password, user.password!)) {
+    throw new Error('Invalid password')
+  }
+
   await createUserSession(user, await cookies())
 
+  redirect('/')
+}
+
+export async function logOut() {
+  await removeUserFromSession(await cookies())
   redirect('/')
 }

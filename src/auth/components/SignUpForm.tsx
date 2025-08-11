@@ -41,7 +41,6 @@ export function SignUpForm({
 
   const onSubmit = async (data: SignUpFormData) => {
     const result = await signUp(data)
-    console.log('Form submitted:', result)
   }
 
   return (

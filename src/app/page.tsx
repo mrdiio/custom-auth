@@ -1,3 +1,4 @@
+import LogOutButton from '@/auth/components/LogOutButton'
 import { getCurrentUser } from '@/auth/core/current-user'
 import { Button } from '@/components/ui/button'
 import {
@@ -36,6 +37,8 @@ export default async function Home() {
                 </Button>
               )}
               {/* <LogOutButton /> */}
+
+              <LogOutButton />
             </CardFooter>
           </Card>
         ) : (
