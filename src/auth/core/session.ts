@@ -3,8 +3,8 @@ import { redisClient } from '@/redis/redis-client'
 import z from 'zod'
 import { v7 } from 'uuid'
 
-// Seven days in seconds
-const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7
+// One hour in seconds
+const SESSION_EXPIRATION_SECONDS = 60 * 60
 const COOKIE_SESSION_KEY = 'session-id'
 
 const sessionSchema = z.object({
@@ -22,7 +22,7 @@ export type Cookies = {
       secure?: boolean
       httpOnly?: boolean
       sameSite?: 'lax' | 'strict'
-      expires?: number
+      maxAge?: number
     }
   ) => void
   get: (key: string) => { name: string; value: string } | undefined
@@ -48,6 +48,34 @@ export async function createUserSession(
   setCookie(sessionId, cookies)
 }
 
+export async function updateUserSessionData(
+  user: UserSession,
+  cookies: Pick<Cookies, 'get'>
+) {
+  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
+
+  if (sessionId == null) return null
+  console.log(sessionSchema.parse(user))
+  await redisClient.set(`session:${sessionId}`, sessionSchema.parse(user), {
+    ex: SESSION_EXPIRATION_SECONDS,
+  })
+}
+
+export async function updateUserSessionExpiration(
+  cookies: Pick<Cookies, 'get' | 'set'>
+) {
+  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
+  if (sessionId == null) return null
+
+  const user = await getUserSessionById(sessionId)
+  if (user == null) return
+
+  await redisClient.set(`session:${sessionId}`, user, {
+    ex: SESSION_EXPIRATION_SECONDS,
+  })
+  setCookie(sessionId, cookies)
+}
+
 export async function removeUserFromSession(
   cookies: Pick<Cookies, 'get' | 'delete'>
 ) {
@@ -63,7 +91,7 @@ function setCookie(sessionId: string, cookies: Pick<Cookies, 'set'>) {
     secure: true,
     httpOnly: true,
     sameSite: 'strict',
-    expires: Date.now() + SESSION_EXPIRATION_SECONDS * 1000,
+    maxAge: SESSION_EXPIRATION_SECONDS,
   })
 }
 
