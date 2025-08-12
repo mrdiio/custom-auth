@@ -5,7 +5,7 @@ import { v7 } from 'uuid'
 
 const COOKIE_SESSION_KEY = 'session-id'
 const SESSION_EXPIRATION_SECONDS = 60 * 60 // One hour in seconds
-const SESSION_REFRESH_INTERVAL = 10 * 1000 // Five minutes in milliseconds
+const SESSION_REFRESH_INTERVAL = 5 * 60 * 1000 // Five minutes in milliseconds
 
 const sessionSchema = z.object({
   id: z.string(),
