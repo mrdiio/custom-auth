@@ -1,13 +1,6 @@
 import LogOutButton from '@/auth/components/LogOutButton'
 import { getCurrentUser } from '@/auth/core/current-user'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import Link from 'next/link'
 import React from 'react'
 
@@ -43,40 +36,6 @@ export default async function ProtectedLayout({
           </div>
         </div>
       </div>
-
-      {/* <footer className="w-full mt-auto px-4">
-        <div className="max-w-7xl py-4 mx-auto text-muted-foreground text-sm flex justify-end">
-          &copy; 2025 | UPA. TIK, Universitas Tanjungpura.
-        </div>
-      </footer> */}
     </main>
-    // <div className="flex w-full flex-col justify-center">
-    //   <main className="flex flex-col gap-12 row-start-2">
-    //     <div className="max-w-xl mx-auto flex flex-1 justify-center flex-col gap-1">
-    //       {children}
-    //     </div>
-
-    //     <Card className="max-w-[500px] mt-4">
-    //       <CardHeader>
-    //         <CardTitle>Welcome </CardTitle>
-    //         <hr className="my-2" />
-    //       </CardHeader>
-    //       <div className="px-6">{children}</div>
-
-    //       <CardFooter className="flex gap-4">
-    //         <Button asChild variant="outline">
-    //           <Link href="/private">Private Page</Link>
-    //         </Button>
-    //         {user.role === 'admin' && (
-    //           <Button asChild variant="outline">
-    //             <Link href="/admin">Admin Page</Link>
-    //           </Button>
-    //         )}
-
-    //         <LogOutButton />
-    //       </CardFooter>
-    //     </Card>
-    //   </main>
-    // </div>
   )
 }

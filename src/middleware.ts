@@ -10,33 +10,33 @@ const adminRoutes = ['/admin']
 export async function middleware(request: NextRequest) {
   const response = (await middlewareAuth(request)) ?? NextResponse.next()
 
-  await updateUserSessionExpiration({
-    set: (key, value, options) => {
-      response.cookies.set({ ...options, name: key, value })
-    },
-    get: (key) => request.cookies.get(key),
-  })
+  const user = await getUserFromSession(request.cookies)
+
+  if (user) {
+    await updateUserSessionExpiration({
+      set: (key, value, options) => {
+        response.cookies.set({ ...options, name: key, value })
+      },
+      get: (key) => request.cookies.get(key),
+    })
+  }
 
   return response
 }
 
 async function middlewareAuth(request: NextRequest) {
-  console.log('Middleware Auth triggered')
+  const user = await getUserFromSession(request.cookies)
 
-  if (privateRoutes.includes(request.nextUrl.pathname)) {
-    const user = await getUserFromSession(request.cookies)
-    if (user == null) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
-    }
-  }
+  if (user) {
+    console.log('middleware auth')
 
-  if (adminRoutes.includes(request.nextUrl.pathname)) {
-    const user = await getUserFromSession(request.cookies)
-    if (user == null) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
+    if (privateRoutes.includes(request.nextUrl.pathname)) {
     }
-    if (user.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url))
+
+    if (adminRoutes.includes(request.nextUrl.pathname)) {
+      if (user.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
     }
   }
 }
